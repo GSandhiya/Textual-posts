@@ -9,19 +9,21 @@ import { useDispatch } from "react-redux";
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
+    const [postsSearch, setPostSearch] = useState([]);
     const [loading, setLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [error, setError] = useState(null);
+    const [searchVal, setSearchVal] = useState("");
     const [newPost, setNewPost] = useState([{ title: "", body: "" }]); 
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-console.log(newPost, "sssssssss")
     useEffect(() => {
         setLoading(true);
         axios.get('https://jsonplaceholder.typicode.com/posts')
             .then(response => {
                 setPosts(response.data);
+                setPostSearch(response.data);
                 setLoading(false);
             })
             .catch(error => {
@@ -29,6 +31,16 @@ console.log(newPost, "sssssssss")
                 setLoading(false);
             });
     }, []);
+
+    useEffect(()=>{
+        if(searchVal !== ""){
+        const filtered = posts.filter((item)=>item.title.includes(searchVal))
+        setPostSearch(filtered)
+        }
+        else{
+            setPostSearch(posts)
+        }
+    },[searchVal])
 
 
     if (error) {
@@ -56,6 +68,8 @@ console.log(newPost, "sssssssss")
         setOpenModal(false);
     }
 
+    console.log(searchVal,postsSearch,posts)
+
     return (
         <div className="container">
             {loading ?
@@ -67,13 +81,14 @@ console.log(newPost, "sssssssss")
             <div className="head">
                 <h2>All Posts</h2>
                 <div>
+                    <input type="text" onChange={(e)=>{setSearchVal(e.target.value);}} />
                     <button onClick={createPostHandler}>Create Post</button>
                     <button onClick={savedHandler}>Saved Posts</button>
                 </div>
             </div>
             {/* <h2>Posts</h2> */}
             <div>
-                {posts.map((post,index) => {
+                {postsSearch.map((post,index) => {
                     return(
                         <div key={post.id} className="postLists">
                             <h4>{post.title}</h4>
